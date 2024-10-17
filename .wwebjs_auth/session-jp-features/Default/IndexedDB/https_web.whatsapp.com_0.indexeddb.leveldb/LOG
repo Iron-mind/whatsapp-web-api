@@ -1,0 +1,58 @@
+2024/10/17-15:33:19.694 14552 Reusing MANIFEST /home/iron-mind/Desktop/reps/justopago/jp-features-test/wp-web-api/.wwebjs_auth/session-jp-features/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/10/17-15:33:19.695 14552 Recovering log #2134
+2024/10/17-15:33:19.695 14552 Reusing old log /home/iron-mind/Desktop/reps/justopago/jp-features-test/wp-web-api/.wwebjs_auth/session-jp-features/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/002134.log 
+2024/10/17-15:33:21.801 14557 Compacting 1@1 + 2@2 files
+2024/10/17-15:33:21.877 14557 Generated table #2140@1: 53504 keys, 2220703 bytes
+2024/10/17-15:33:21.968 14557 Generated table #2141@1: 29819 keys, 2191634 bytes
+2024/10/17-15:33:21.972 14557 Generated table #2142@1: 33 keys, 22060 bytes
+2024/10/17-15:33:21.972 14557 Compacted 1@1 + 2@2 files => 4434397 bytes
+2024/10/17-15:33:21.998 14557 compacted to: files[ 0 2 32 0 0 0 0 ]
+2024/10/17-15:33:21.999 14557 Delete type=2 #2124
+2024/10/17-15:33:21.999 14557 Delete type=2 #2125
+2024/10/17-15:33:21.999 14557 Delete type=2 #2136
+2024/10/17-15:33:22.826 14557 Level-0 table #2144: started
+2024/10/17-15:33:22.829 14557 Level-0 table #2144: 25209 bytes OK
+2024/10/17-15:33:22.833 14557 Delete type=0 #2134
+2024/10/17-15:33:22.834 14562 Manual compaction at level-0 from ' !\x01\x00\x00\x00' @ 72057594037927935 : 1 .. ' "\x01\x00\x00\x00' @ 0 : 0; will stop at ' !\x01\x00\x00\x05' @ 4256334 : 1
+2024/10/17-15:33:22.834 14562 Compacting 1@0 + 2@1 files
+2024/10/17-15:33:22.838 14562 Generated table #2145@0: 523 keys, 10782 bytes
+2024/10/17-15:33:22.863 14562 Generated table #2146@0: 930 keys, 60609 bytes
+2024/10/17-15:33:22.866 14562 Generated table #2147@0: 93 keys, 3158 bytes
+2024/10/17-15:33:22.866 14562 Compacted 1@0 + 2@1 files => 74549 bytes
+2024/10/17-15:33:22.871 14562 compacted to: files[ 0 3 32 0 0 0 0 ]
+2024/10/17-15:33:22.872 14562 Delete type=2 #2144
+2024/10/17-15:33:22.872 14562 Manual compaction at level-0 from ' !\x01\x00\x00\x05' @ 4256334 : 1 .. ' "\x01\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/10/17-15:33:25.694 14552 Compacting 1@1 + 10@2 files
+2024/10/17-15:33:25.784 14552 Generated table #2148@1: 32734 keys, 2194479 bytes
+2024/10/17-15:33:25.930 14552 Generated table #2149@1: 28849 keys, 2267425 bytes
+2024/10/17-15:33:26.064 14552 Generated table #2150@1: 28003 keys, 2264741 bytes
+2024/10/17-15:33:26.193 14552 Generated table #2151@1: 29846 keys, 2256487 bytes
+2024/10/17-15:33:26.305 14552 Generated table #2152@1: 29245 keys, 2242064 bytes
+2024/10/17-15:33:26.357 14552 Generated table #2153@1: 11433 keys, 2135483 bytes
+2024/10/17-15:33:26.429 14552 Generated table #2154@1: 11931 keys, 2135631 bytes
+2024/10/17-15:33:26.519 14552 Generated table #2155@1: 57215 keys, 2194224 bytes
+2024/10/17-15:33:26.651 14552 Generated table #2156@1: 103087 keys, 2255870 bytes
+2024/10/17-15:33:26.758 14552 Generated table #2157@1: 97381 keys, 2245563 bytes
+2024/10/17-15:33:26.760 14552 Generated table #2158@1: 157 keys, 3594 bytes
+2024/10/17-15:33:26.760 14552 Compacted 1@1 + 10@2 files => 22195561 bytes
+2024/10/17-15:33:26.763 14552 compacted to: files[ 0 2 33 0 0 0 0 ]
+2024/10/17-15:33:26.765 14552 Delete type=2 #2113
+2024/10/17-15:33:26.765 14552 Delete type=2 #2114
+2024/10/17-15:33:26.765 14552 Delete type=2 #2115
+2024/10/17-15:33:26.765 14552 Delete type=2 #2116
+2024/10/17-15:33:26.765 14552 Delete type=2 #2117
+2024/10/17-15:33:26.765 14552 Delete type=2 #2118
+2024/10/17-15:33:26.765 14552 Delete type=2 #2119
+2024/10/17-15:33:26.765 14552 Delete type=2 #2120
+2024/10/17-15:33:26.765 14552 Delete type=2 #2121
+2024/10/17-15:33:26.765 14552 Delete type=2 #2122
+2024/10/17-15:33:26.765 14552 Delete type=2 #2137
+2024/10/17-15:33:26.765 14552 Delete type=2 #2138
+2024/10/17-15:33:26.765 14552 Delete type=2 #2146
+2024/10/17-15:33:26.780 14561 Compacting 1@1 + 1@2 files
+2024/10/17-15:33:26.873 14561 Generated table #2159@1: 53575 keys, 2221106 bytes
+2024/10/17-15:33:26.875 14561 Generated table #2160@1: 47 keys, 3253 bytes
+2024/10/17-15:33:26.875 14561 Compacted 1@1 + 1@2 files => 2224359 bytes
+2024/10/17-15:33:26.880 14561 compacted to: files[ 0 1 34 0 0 0 0 ]
+2024/10/17-15:33:26.881 14561 Delete type=2 #2140
+2024/10/17-15:33:26.881 14561 Delete type=2 #2145
