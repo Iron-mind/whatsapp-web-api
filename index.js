@@ -18,6 +18,16 @@ app.get('/test', (req, res) => {
 
 app.get('/whatsapp-web/qr', (req, res) => {
   try {
+
+    let phoneNumber = whatsappClient.info?.wid.user
+
+    if (phoneNumber) {
+      //el mensaje tiene que ser enviado así
+      return res.send(
+        "Ya tienes un numero asociado para enviar notificaciones: " +
+        phoneNumber
+      );
+    }
     getQRHtmlString(res);
   } catch (err) {
     console.log(err);
