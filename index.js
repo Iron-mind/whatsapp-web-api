@@ -18,6 +18,16 @@ app.get('/test', (req, res) => {
 
 app.get('/whatsapp-web/qr', (req, res) => {
   try {
+
+    let phoneNumber = whatsappClient.info?.wid.user
+
+    if (phoneNumber) {
+      //el mensaje tiene que ser enviado así
+      return res.send(
+        "Ya tienes un numero asociado para enviar notificaciones: " +
+        phoneNumber
+      );
+    }
     getQRHtmlString(res);
   } catch (err) {
     console.log(err);
@@ -31,6 +41,9 @@ app.post('/whatsapp-web/message', async (req, res) => {
     console.log(req.body);
 
     const { phone, message } = req.body;
+    if (!whatsappClient.info) {
+      return res.json({ message: 'client wp not ready', success: false });
+    }
     await whatsappClient.sendMessage("57" + phone + "@c.us", message);
     res.json({ message: 'Message sent ', success: true });
 
