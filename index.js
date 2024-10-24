@@ -4,7 +4,7 @@ import { getQRHtmlString, whatsappClient } from './whatsapp-web.js';
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const port = 6900;
+const port = process.env.PORT || 6900;
 
 // Configurar el motor de vistas Pug
 app.set('view engine', 'pug');
@@ -22,9 +22,9 @@ app.get('/whatsapp-web/qr', (req, res) => {
     let phoneNumber = whatsappClient.info?.wid.user
 
     if (phoneNumber) {
-      //el mensaje tiene que ser enviado así
+
       return res.send(
-        "Ya tienes un numero asociado para enviar notificaciones: " +
+        "Phone number already associated " +
         phoneNumber
       );
     }
@@ -40,11 +40,12 @@ app.post('/whatsapp-web/message', async (req, res) => {
     //phone sample: 573002222222 
     console.log(req.body);
 
-    const { phone, message } = req.body;
+    let { phone, message, countryPrefix } = req.body;
+    countryPrefix = countryPrefix || "57";
     if (!whatsappClient.info) {
       return res.json({ message: 'client wp not ready', success: false });
     }
-    await whatsappClient.sendMessage("57" + phone + "@c.us", message);
+    await whatsappClient.sendMessage(countryPrefix + phone + "@c.us", message, { linkPreview: true });
     res.json({ message: 'Message sent ', success: true });
 
   } catch (error) {
