@@ -29,7 +29,14 @@ export const whatsappClient = new Client({
     clientId: "jp-features"
   }),
 });
-whatsappClient.initialize()
+try {
+  console.log("Initializing whatsapp client");
+  whatsappClient.initialize()
+
+}
+catch (e) {
+  console.log(e);
+}
 
 export function getQRHtmlString(res) {
   console.log("Getting QR code");
@@ -49,7 +56,7 @@ whatsappClient.on("ready", () => {
   console.log("Wp web Client is ready!");
   whatsappClient.sendMessage(
     whatsappClient.info.wid.user + "@c.us",
-    "Ya tienes whatsapp asociado para enviar notificaciones"
+    "Whatsapp api connected through whatsapp-web.js "
   );
 });
 
