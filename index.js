@@ -80,6 +80,7 @@ app.post('/whatsapp-web/message', async (req, res) => {
       messageId: messageData.id,
       queuedAt: messageData.created_at
     });
+    processMessageQueue();
 
   } catch (error) {
     console.log(error);
