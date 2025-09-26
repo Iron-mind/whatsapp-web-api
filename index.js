@@ -1,13 +1,13 @@
 import express from 'express';
-import { getQRHtmlString, whatsappClient } from './whatsapp-web.js';
+import { getQRHtmlString, whatsappClient } from './src/whatsapp-web.js';
 import {
   addMessageToQueue,
   getMessagesReport,
   getMessagesByPhone,
   setProcessQueueFunction,
   checkRedisConnection
-} from './redis.js';
-import { processMessageQueue, getProcessorStatus } from './queue-processor.js';
+} from './src/redis.js';
+import { processMessageQueue, getProcessorStatus } from './src/queue-processor.js';
 
 const app = express();
 app.use(express.json());
