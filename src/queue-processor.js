@@ -8,17 +8,17 @@ import {
 
 let isProcessing = false;
 
-// Función para procesar un mensaje individual
+// Function to process an individual message
 async function processMessage(messageData) {
   const { phone, countryPrefix, message, id } = messageData;
   const fullPhone = `${countryPrefix}${phone}@c.us`;
   
   try {
-    console.log(`Enviando mensaje a ${countryPrefix}${phone}: ${message.substring(0, 50)}...`);
+    console.log(`Sending message to ${countryPrefix}${phone}: ${message.substring(0, 50)}...`);
     
     // Verificar si el cliente de WhatsApp está listo
     if (!whatsappClient.info) {
-      console.error('Cliente de WhatsApp no está listo');
+      console.error('WhatsApp client is not ready');
       return false;
     }
     
@@ -31,19 +31,19 @@ async function processMessage(messageData) {
     // Limpiar mensajes antiguos si es necesario
     await cleanupOldMessages(phone, countryPrefix);
     
-    console.log(`✅ Mensaje enviado exitosamente a ${countryPrefix}${phone}`);
+    console.log(`✅ Message sent successfully to ${countryPrefix}${phone}`);
     return true;
     
   } catch (error) {
-    console.error(`❌ Error enviando mensaje a ${countryPrefix}${phone}:`, error.message);
+    console.error(`❌ Error sending message to ${countryPrefix}${phone}:`, error.message);
     return false;
   }
 }
 
-// Función principal para procesar la cola bajo demanda
+// Main function to process the queue on demand
 export async function processMessageQueue() {
   if (isProcessing) {
-    console.log('Ya hay un procesamiento en curso, saltando...');
+    console.log('Processing already in progress, skipping...');
     return {
       success: false,
       message: 'Processing already in progress',
@@ -52,7 +52,7 @@ export async function processMessageQueue() {
   }
   
   isProcessing = true;
-  console.log('🔄 Iniciando procesamiento de cola de mensajes (bajo demanda)');
+  console.log('🔄 Starting message queue processing (on demand)');
   
   try {
     let processedCount = 0;
@@ -66,7 +66,7 @@ export async function processMessageQueue() {
       const nextMessage = await getNextMessage();
       
       if (!nextMessage) {
-        console.log('✅ No hay más mensajes pendientes en la cola');
+        console.log('✅ No more pending messages in the queue');
         break;
       }
       
@@ -80,17 +80,17 @@ export async function processMessageQueue() {
         
         // Esperar 2 segundos entre envíos para evitar limitaciones de WhatsApp
         if (currentIteration < maxIterations) {
-          console.log('⏳ Esperando 2 segundos antes del siguiente mensaje...');
+          console.log('⏳ Waiting 2 seconds before the next message...');
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
       } else {
-        console.log('⚠️ Error procesando mensaje, se intentará de nuevo en el próximo ciclo');
+        console.log('⚠️ Error processing message, will try again in the next cycle');
         // No marcamos como enviado, se intentará de nuevo
         break; // Salir del bucle para evitar procesar más mensajes si hay errores
       }
     }
     
-    console.log(`🎉 Procesamiento completado: ${processedCount} mensajes enviados`);
+    console.log(`🎉 Processing completed: ${processedCount} messages sent`);
     
     // Limpiar mensajes enviados de la cola principal cada cierto tiempo
     if (processedCount > 0) {
@@ -104,7 +104,7 @@ export async function processMessageQueue() {
     };
     
   } catch (error) {
-    console.error('❌ Error durante el procesamiento de la cola:', error);
+    console.error('❌ Error during queue processing:', error);
     return {
       success: false,
       message: 'Error processing queue: ' + error.message,
@@ -115,7 +115,7 @@ export async function processMessageQueue() {
   }
 }
 
-// Función para obtener el estado actual del procesador
+// Function to get the current processor status
 export function getProcessorStatus() {
   return {
     isProcessing,

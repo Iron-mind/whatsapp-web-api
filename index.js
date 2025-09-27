@@ -14,10 +14,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 6900;
 
-// Configurar el motor de vistas Pug
+// Configure Pug view engine
 app.set('view engine', 'pug');
 
-// Ruta raíz
+// Root route
 app.get('/test', (req, res) => {
   // res.render('index', { title: 'Mi primera aplicación Express' });
   res.json({ message: 'Hello World' });
@@ -53,7 +53,7 @@ app.post('/whatsapp-web/message', async (req, res) => {
 
     // Validar que el cliente esté listo
     if (!whatsappClient.info) {
-      return res.json({ message: 'client wp not ready', success: false });
+      return res.json({ message: 'WhatsApp client not ready', success: false });
     }
 
     // Validar datos requeridos
@@ -148,8 +148,8 @@ app.get('/whatsapp-web/redis/status', async (req, res) => {
         host: process.env.REDIS_HOST || 'localhost',
         port: process.env.REDIS_PORT || 6379,
         message: redisAvailable
-          ? 'Redis conectado correctamente'
-          : 'Redis no disponible - ejecuta: docker run -d -p 6379:6379 --name redis redis:alpine'
+          ? 'Redis connected correctly'
+          : 'Redis not available - run: docker run -d -p 6379:6379 --name redis redis:alpine'
       }
     });
   } catch (error) {
@@ -175,20 +175,20 @@ app.post('/whatsapp-web/queue/process', async (req, res) => {
   }
 });
 app.listen(port, async () => {
-  console.log(`🚀 Servidor escuchando en el puerto ${port}`);
+  console.log(`🚀 Server listening on port ${port}`);
 
   // Verificar conexión a Redis
-  console.log('🔍 Verificando conexión a Redis...');
+  console.log('🔍 Checking Redis connection...');
   const redisAvailable = await checkRedisConnection();
 
   if (redisAvailable) {
-    console.log('✅ Redis conectado exitosamente');
+    console.log('✅ Redis connected successfully');
     // Configurar la función de procesamiento en el módulo de redis
     setProcessQueueFunction(processMessageQueue);
-    console.log('✅ Sistema de procesamiento bajo demanda configurado');
+    console.log('✅ On-demand processing system configured');
   } else {
-    console.log('❌ Redis no está disponible');
-    console.log('⚠️  El servidor funcionará pero las funciones de cola estarán deshabilitadas');
-    console.log('📋 Para habilitar Redis, ejecuta: docker run -d -p 6379:6379 --name redis redis:alpine');
+    console.log('❌ Redis is not available');
+    console.log('⚠️  The server will work but queue functions will be disabled');
+    console.log('📋 To enable Redis, run: docker run -d -p 6379:6379 --name redis redis:alpine');
   }
 });

@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-// Configuración de Redis
+// Redis configuration
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
@@ -13,50 +13,50 @@ const redis = new Redis({
   enableOfflineQueue: false,
 });
 
-let hasShownRedisError = false; // Flag para mostrar el error solo una vez
+let hasShownRedisError = false; // Flag to show error only once
 
-// Manejo de errores de Redis
+// Redis error handling
 redis.on('error', (err) => {
   if (err.code === 'ECONNREFUSED' && !hasShownRedisError) {
     hasShownRedisError = true;
-    console.error('\n🚨 ERROR: No se puede conectar a Redis');
-    console.error('📋 Para solucionar este problema, ejecuta uno de estos comandos:\n');
-    console.error('🐳 Opción 1 - Usar Docker (RECOMENDADO):');
+    console.error('\n🚨 ERROR: Cannot connect to Redis');
+    console.error('📋 To solve this problem, run one of these commands:\n');
+    console.error('🐳 Option 1 - Use Docker (RECOMMENDED):');
     console.error('   docker run -d -p 6379:6379 --name redis redis:alpine\n');
-    console.error('🐧 Opción 2 - Usar WSL (Windows):');
+    console.error('🐧 Option 2 - Use WSL (Windows):');
     console.error('   wsl --install');
     console.error('   wsl');
     console.error('   sudo apt update && sudo apt install redis-server');
     console.error('   redis-server\n');
-    console.error('🔗 Opción 3 - Redis Stack (Windows):');
+    console.error('🔗 Option 3 - Redis Stack (Windows):');
     console.error('   Descargar de: https://redis.io/download\n');
-    console.error('⚠️  El servidor continuará ejecutándose pero las funciones de cola no funcionarán sin Redis.');
+    console.error('⚠️  The server will continue running but queue functions will not work without Redis.');
     console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   }
 });
 
 redis.on('connect', () => {
   hasShownRedisError = false; // Reset flag when connected
-  console.log('✅ Conectado exitosamente a Redis');
+  console.log('✅ Successfully connected to Redis');
 });
 
 redis.on('ready', () => {
-  console.log('🚀 Redis está listo para usar');
+  console.log('🚀 Redis is ready to use');
 });
 
-// Nombres de las claves en Redis
+// Redis key names
 const QUEUE_KEY = 'whatsapp:message_queue';
 const MESSAGES_KEY_PREFIX = 'whatsapp:messages:';
 
-// Variable para almacenar la función de procesamiento (se asignará externamente)
+// Variable to store the processing function (will be assigned externally)
 let processQueueFunction = null;
 
-// Función para establecer la función de procesamiento
+// Function to set the processing function
 export function setProcessQueueFunction(processFunction) {
   processQueueFunction = processFunction;
 }
 
-// Función para verificar conexión de Redis
+// Function to check Redis connection
 export async function checkRedisConnection() {
   try {
     await redis.ping();
@@ -66,7 +66,7 @@ export async function checkRedisConnection() {
   }
 }
 
-// Función para agregar un mensaje a la cola
+// Function to add a message to the queue
 export async function addMessageToQueue(phone, countryPrefix, message) {
   const messageData = {
     phone,
@@ -82,7 +82,7 @@ export async function addMessageToQueue(phone, countryPrefix, message) {
     // Verificar si Redis está disponible
     const redisAvailable = await checkRedisConnection();
     if (!redisAvailable) {
-      console.warn('⚠️ Redis no disponible - el mensaje no se guardará en cola');
+      console.warn('⚠️ Redis not available - message will not be saved in queue');
       throw new Error('Redis connection not available. Please start Redis server.');
     }
 
@@ -93,11 +93,11 @@ export async function addMessageToQueue(phone, countryPrefix, message) {
     const phoneKey = `${MESSAGES_KEY_PREFIX}${countryPrefix}${phone}`;
     await redis.lpush(phoneKey, JSON.stringify(messageData));
     
-    console.log(`✅ Mensaje agregado a la cola para ${countryPrefix}${phone}`);
+    console.log(`✅ Message added to queue for ${countryPrefix}${phone}`);
     
     // Disparar procesamiento automático si está configurado
     if (processQueueFunction) {
-      console.log('🚀 Disparando procesamiento automático de cola...');
+      console.log('🚀 Triggering automatic queue processing...');
       // Ejecutar en segundo plano sin bloquear la respuesta
       setImmediate(() => {
         processQueueFunction().catch(err => 
@@ -108,12 +108,12 @@ export async function addMessageToQueue(phone, countryPrefix, message) {
     
     return messageData;
   } catch (error) {
-    console.error('❌ Error agregando mensaje a la cola:', error.message);
+    console.error('❌ Error adding message to queue:', error.message);
     throw error;
   }
 }
 
-// Función para obtener el próximo mensaje de la cola (no enviado)
+// Function to get the next message from the queue (not sent)
 export async function getNextMessage() {
   try {
     // Obtener todos los mensajes de la cola
@@ -136,12 +136,12 @@ export async function getNextMessage() {
     
     return null;
   } catch (error) {
-    console.error('Error obteniendo próximo mensaje:', error);
+    console.error('Error getting next message:', error);
     throw error;
   }
 }
 
-// Función para marcar un mensaje como enviado
+// Function to mark a message as sent
 export async function markMessageAsSent(messageId, sentAt = null) {
   try {
     // Obtener todos los mensajes de la cola
@@ -170,19 +170,19 @@ export async function markMessageAsSent(messageId, sentAt = null) {
           }
         }
         
-        console.log(`Mensaje ${messageId} marcado como enviado`);
+        console.log(`Message ${messageId} marked as sent`);
         return true;
       }
     }
     
     return false;
   } catch (error) {
-    console.error('Error marcando mensaje como enviado:', error);
+    console.error('Error marking message as sent:', error);
     throw error;
   }
 }
 
-// Función para limpiar mensajes enviados (mantener solo 20 por número)
+// Function to clean up sent messages (keep only 20 per number)
 export async function cleanupOldMessages(phone, countryPrefix) {
   try {
     const phoneKey = `${MESSAGES_KEY_PREFIX}${countryPrefix}${phone}`;
@@ -191,15 +191,15 @@ export async function cleanupOldMessages(phone, countryPrefix) {
     if (messages.length > 20) {
       // Mantener solo los primeros 20 mensajes (más recientes)
       await redis.ltrim(phoneKey, 0, 19);
-      console.log(`Limpieza realizada para ${countryPrefix}${phone}: mantenidos 20 mensajes de ${messages.length}`);
+      console.log(`Cleanup performed for ${countryPrefix}${phone}: kept 20 messages out of ${messages.length}`);
     }
   } catch (error) {
-    console.error('Error limpiando mensajes antiguos:', error);
+    console.error('Error cleaning up old messages:', error);
     throw error;
   }
 }
 
-// Función para obtener mensajes por número
+// Function to get messages by number
 export async function getMessagesByPhone(phone, countryPrefix) {
   try {
     const phoneKey = `${MESSAGES_KEY_PREFIX}${countryPrefix}${phone}`;
@@ -207,12 +207,12 @@ export async function getMessagesByPhone(phone, countryPrefix) {
     
     return messages.map(msg => JSON.parse(msg));
   } catch (error) {
-    console.error('Error obteniendo mensajes por teléfono:', error);
+    console.error('Error getting messages by phone:', error);
     throw error;
   }
 }
 
-// Función para obtener un resumen de todos los mensajes agrupados por número
+// Function to get a summary of all messages grouped by number
 export async function getMessagesReport() {
   try {
     const keys = await redis.keys(`${MESSAGES_KEY_PREFIX}*`);
@@ -236,12 +236,12 @@ export async function getMessagesReport() {
     
     return report;
   } catch (error) {
-    console.error('Error generando reporte de mensajes:', error);
+    console.error('Error generating messages report:', error);
     throw error;
   }
 }
 
-// Función para limpiar mensajes enviados de la cola principal
+// Function to clean up sent messages from the main queue
 export async function cleanupSentMessages() {
   try {
     const messages = await redis.lrange(QUEUE_KEY, 0, -1);
@@ -261,9 +261,9 @@ export async function cleanupSentMessages() {
       await redis.rpush(QUEUE_KEY, ...pendingMessages);
     }
     
-    console.log(`Cola limpiada: ${pendingMessages.length} mensajes pendientes mantenidos`);
+    console.log(`Queue cleaned: ${pendingMessages.length} pending messages kept`);
   } catch (error) {
-    console.error('Error limpiando mensajes enviados de la cola:', error);
+    console.error('Error cleaning sent messages from queue:', error);
     throw error;
   }
 }
