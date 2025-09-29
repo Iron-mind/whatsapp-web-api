@@ -16,19 +16,19 @@ async function processMessage(messageData) {
   try {
     console.log(`Sending message to ${countryPrefix}${phone}: ${message.substring(0, 50)}...`);
     
-    // Verificar si el cliente de WhatsApp está listo
+    // Check if the WhatsApp client is ready
     if (!whatsappClient.info) {
       console.error('WhatsApp client is not ready');
       return false;
     }
     
-    // Enviar el mensaje
+    // Send the message
     await whatsappClient.sendMessage(fullPhone, message, { linkPreview: true });
     
-    // Marcar como enviado
+    // Mark as sent
     await markMessageAsSent(id);
     
-    // Limpiar mensajes antiguos si es necesario
+    // Clean up old messages if necessary
     await cleanupOldMessages(phone, countryPrefix);
     
     console.log(`✅ Message sent successfully to ${countryPrefix}${phone}`);
@@ -56,13 +56,13 @@ export async function processMessageQueue() {
   
   try {
     let processedCount = 0;
-    let maxIterations = 50; // Límite de seguridad para evitar bucles infinitos
+    let maxIterations = 100; // Safety limit to avoid infinite loops
     let currentIteration = 0;
     
     while (currentIteration < maxIterations) {
       currentIteration++;
       
-      // Obtener el próximo mensaje a procesar
+      // Get the next message to process
       const nextMessage = await getNextMessage();
       
       if (!nextMessage) {
@@ -70,29 +70,29 @@ export async function processMessageQueue() {
         break;
       }
       
-      console.log(`Procesando mensaje ${processedCount + 1}: ID ${nextMessage.id}`);
+      console.log(`Processing message ${processedCount + 1}: ID ${nextMessage.id}`);
       
-      // Procesar el mensaje
+      // Process the message
       const success = await processMessage(nextMessage);
       
       if (success) {
         processedCount++;
         
-        // Esperar 2 segundos entre envíos para evitar limitaciones de WhatsApp
+        // Wait 2 seconds between sends to avoid WhatsApp limitations
         if (currentIteration < maxIterations) {
           console.log('⏳ Waiting 2 seconds before the next message...');
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
       } else {
         console.log('⚠️ Error processing message, will try again in the next cycle');
-        // No marcamos como enviado, se intentará de nuevo
-        break; // Salir del bucle para evitar procesar más mensajes si hay errores
+        // We do not mark as sent, it will be tried again
+        break; // Exit the loop to avoid processing more messages if there are errors
       }
     }
     
     console.log(`🎉 Processing completed: ${processedCount} messages sent`);
     
-    // Limpiar mensajes enviados de la cola principal cada cierto tiempo
+    // Clean up sent messages from the main queue every certain time
     if (processedCount > 0) {
       await cleanupSentMessages();
     }
