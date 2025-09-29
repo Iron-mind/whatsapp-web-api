@@ -1,69 +1,69 @@
 # WhatsApp Web API
 
-Una API REST para enviar mensajes de WhatsApp a través de WhatsApp Web usando un sistema de cola para evitar el baneo por envío masivo.
+A REST API for sending WhatsApp messages through WhatsApp Web using a queue system to avoid banning for mass sending.
 
-## Características
+## Features
 
-- ✅ Sistema de cola de mensajes con Redis
-- ✅ Procesamiento automático bajo demanda (se activa al agregar mensajes)
-- ✅ Envío secuencial para evitar limitaciones de WhatsApp
-- ✅ Candado para evitar múltiples procesamentos concurrentes
-- ✅ Almacenamiento de historial de mensajes por número
-- ✅ Limpieza automática de mensajes antiguos (mantiene 20 por número)
-- ✅ Endpoints para consultar estado de mensajes
-- ✅ Manejo de errores y reintentos
+- ✅ Message queue system with Redis
+- ✅ Automatic on-demand processing (triggered when adding messages)
+- ✅ Sequential sending to avoid WhatsApp limitations
+- ✅ Lock to prevent multiple concurrent processing
+- ✅ Message history storage by number
+- ✅ Automatic cleanup of old messages (keeps 20 per number)
+- ✅ Endpoints to query message status
+- ✅ Error handling and retries
 
-## Prerrequisitos
+## Prerequisites
 
 - Node.js v16 o superior
 - Redis server
 - npm o pnpm
 
-## Instalación
+## Installation
 
-1. Clonar el repositorio
-2. Instalar dependencias:
+1. Clone the repository
+2. Install dependencies:
    ```bash
    pnpm install
    ```
-3. Configurar variables de entorno (opcional):
+3. Configure environment variables (optional):
    ```bash
    cp .env.example .env
    ```
-4. Iniciar Redis server
-5. Ejecutar la aplicación:
+4. Start Redis server
+5. Run the application:
    ```bash
    pnpm dev
    ```
 
-## Endpoints de la API
+## API Endpoints
 
-### Autenticación WhatsApp
+### WhatsApp Authentication
 
 #### `GET /whatsapp-web/qr`
-Obtiene el código QR para autenticar con WhatsApp Web.
+Gets the QR code to authenticate with WhatsApp Web.
 
-**Respuesta exitosa:**
-- HTML con el código QR para escanear
-- Si ya está autenticado: texto con el número asociado
+**Successful response:**
+- HTML with QR code to scan
+- If already authenticated: text with associated number
 
 ---
 
-### Envío de mensajes
+### Message Sending
 
 #### `POST /whatsapp-web/message`
-Agrega un mensaje a la cola de envío (no lo envía inmediatamente).
+Adds a message to the sending queue (does not send it immediately).
 
 **Body:**
 ```json
 {
   "phone": "3001234567",
-  "message": "Hola, este es un mensaje de prueba",
+  "message": "Hello, this is a test message",
   "countryPrefix": "57"
 }
 ```
 
-**Respuesta exitosa:**
+**Successful response:**
 ```json
 {
   "message": "Message queued successfully",
@@ -75,12 +75,12 @@ Agrega un mensaje a la cola de envío (no lo envía inmediatamente).
 
 ---
 
-### Consulta de mensajes
+### Message Queries
 
 #### `GET /whatsapp-web/messages/report`
-Obtiene un resumen de todos los mensajes agrupados por número.
+Gets a summary of all messages grouped by number.
 
-**Respuesta exitosa:**
+**Successful response:**
 ```json
 {
   "success": true,
@@ -97,11 +97,11 @@ Obtiene un resumen de todos los mensajes agrupados por número.
 ```
 
 #### `GET /whatsapp-web/messages/:countryPrefix/:phone`
-Obtiene todos los mensajes de un número específico.
+Gets all messages from a specific number.
 
-**Ejemplo:** `GET /whatsapp-web/messages/57/3001234567`
+**Example:** `GET /whatsapp-web/messages/57/3001234567`
 
-**Respuesta exitosa:**
+**Successful response:**
 ```json
 {
   "success": true,
@@ -110,7 +110,7 @@ Obtiene todos los mensajes de un número específico.
     {
       "phone": "3001234567",
       "countryPrefix": "57",
-      "message": "Hola mundo",
+      "message": "Hello world",
       "sent": true,
       "created_at": "2023-09-23T10:30:00.000Z",
       "sent_at": "2023-09-23T10:32:00.000Z",
@@ -125,12 +125,12 @@ Obtiene todos los mensajes de un número específico.
 
 ---
 
-### Control de cola
+### Queue Control
 
 #### `GET /whatsapp-web/queue/status`
-Obtiene el estado actual del procesador de cola.
+Gets the current status of the queue processor.
 
-**Respuesta exitosa:**
+**Successful response:**
 ```json
 {
   "success": true,
@@ -140,9 +140,9 @@ Obtiene el estado actual del procesador de cola.
 ```
 
 #### `GET /whatsapp-web/redis/status`
-Verifica el estado de la conexión a Redis.
+Checks the status of the Redis connection.
 
-**Respuesta exitosa:**
+**Successful response:**
 ```json
 {
   "success": true,
@@ -150,15 +150,15 @@ Verifica el estado de la conexión a Redis.
     "connected": true,
     "host": "localhost",
     "port": 6379,
-    "message": "Redis conectado correctamente"
+    "message": "Redis connected correctly"
   }
 }
 ```
 
 #### `POST /whatsapp-web/queue/process`
-Fuerza el procesamiento manual de la cola y espera a que termine.
+Forces manual processing of the queue and waits for it to finish.
 
-**Respuesta exitosa:**
+**Successful response:**
 ```json
 {
   "success": true,
@@ -169,33 +169,33 @@ Fuerza el procesamiento manual de la cola y espera a que termine.
 
 ---
 
-## Funcionamiento del sistema de cola
+## Queue System Operation
 
-1. **Recepción**: Los mensajes se agregan a una cola Redis cuando llegan vía POST
-2. **Activación automática**: Al agregar un mensaje se dispara automáticamente el procesamiento
-3. **Candado de concurrencia**: Solo puede ejecutarse un procesamiento a la vez
-4. **Envío secuencial**: Se envía un mensaje cada 2 segundos para evitar limitaciones
-5. **Vaciado completo**: El procesador continúa hasta vaciar completamente la cola
-6. **Persistencia**: Los mensajes se almacenan por número hasta que se superen 20
-7. **Limpieza**: Se eliminan automáticamente mensajes antiguos por número
+1. **Reception**: Messages are added to a Redis queue when they arrive via POST
+2. **Automatic activation**: Adding a message automatically triggers processing
+3. **Concurrency lock**: Only one processing can run at a time
+4. **Sequential sending**: One message is sent every 2 seconds to avoid limitations
+5. **Complete draining**: The processor continues until the queue is completely empty
+6. **Persistence**: Messages are stored by number until 20 are exceeded
+7. **Cleanup**: Old messages are automatically deleted by number
 
-## Variables de entorno
+## Environment Variables
 
-| Variable | Descripción | Valor por defecto |
-|----------|-------------|-------------------|
-| `PORT` | Puerto del servidor | `6900` |
-| `REDIS_HOST` | Host de Redis | `localhost` |
-| `REDIS_PORT` | Puerto de Redis | `6379` |
-| `REDIS_PASSWORD` | Contraseña de Redis | `null` |
+| Variable | Description | Default value |
+|----------|-------------|---------------|
+| `PORT` | Server port | `6900` |
+| `REDIS_HOST` | Redis host | `localhost` |
+| `REDIS_PORT` | Redis port | `6379` |
+| `REDIS_PASSWORD` | Redis password | `null` |
 
-## Estructura de datos
+## Data Structure
 
-### Mensaje en cola:
+### Message in queue:
 ```javascript
 {
   phone: "3001234567",
   countryPrefix: "57", 
-  message: "Texto del mensaje",
+  message: "Message text",
   sent: false,
   created_at: "2023-09-23T10:30:00.000Z",
   sent_at: null,
@@ -205,12 +205,12 @@ Fuerza el procesamiento manual de la cola y espera a que termine.
 
 ## Testing
 
-1. Ejecutar la aplicación: `pnpm dev`
-2. Escanear QR en: `http://localhost:6900/whatsapp-web/qr`
-3. Enviar mensaje de prueba:
+1. Run the application: `pnpm dev`
+2. Scan QR at: `http://localhost:6900/whatsapp-web/qr`
+3. Send test message:
    ```bash
    curl -X POST http://localhost:6900/whatsapp-web/message \
      -H "Content-Type: application/json" \
-     -d '{"phone":"3001234567","message":"Hola desde la API","countryPrefix":"57"}'
+     -d '{"phone":"3001234567","message":"Hello from the API","countryPrefix":"57"}'
    ```
-4. Verificar estado: `http://localhost:6900/whatsapp-web/messages/report`
+4. Check status: `http://localhost:6900/whatsapp-web/messages/report`

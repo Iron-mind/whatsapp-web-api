@@ -1,98 +1,98 @@
-# 🚀 Instrucciones para instalar Redis
+# 🚀 Instructions to install Redis
 
-La API necesita Redis para funcionar correctamente. Aquí tienes varias opciones:
+The API needs Redis to work correctly. Here are several options:
 
-## 🐳 Opción 1: Docker (RECOMENDADO)
+## 🐳 Option 1: Docker (RECOMMENDED)
 
-Si tienes Docker instalado:
+If you have Docker installed:
 
 ```bash
-# Descargar e iniciar Redis
+# Download and start Redis
 docker run -d -p 6379:6379 --name redis redis:alpine
 
-# Verificar que está ejecutándose
+# Verify it's running
 docker ps
 
-# Para detener Redis
+# To stop Redis
 docker stop redis
 
-# Para iniciar Redis de nuevo
+# To start Redis again
 docker start redis
 
-# Para eliminar el contenedor
+# To remove the container
 docker rm redis
 ```
 
-## 🐧 Opción 2: WSL (Windows Subsystem for Linux)
+## 🐧 Option 2: WSL (Windows Subsystem for Linux)
 
-Si usas Windows:
+If you use Windows:
 
 ```bash
-# Instalar WSL si no lo tienes
+# Install WSL if you don't have it
 wsl --install
 
-# Abrir WSL
+# Open WSL
 wsl
 
-# Instalar Redis
+# Install Redis
 sudo apt update
 sudo apt install redis-server
 
-# Iniciar Redis
+# Start Redis
 redis-server
 
-# En otra terminal, verificar conexión
+# In another terminal, verify connection
 redis-cli ping
 ```
 
-## 📦 Opción 3: Instalar Redis nativo en Windows
+## 📦 Option 3: Install native Redis on Windows
 
-1. Descargar Redis Stack desde: https://redis.io/download
-2. Instalar el archivo .msi
-3. Redis se ejecutará automáticamente como servicio
+1. Download Redis Stack from: https://redis.io/download
+2. Install the .msi file
+3. Redis will run automatically as a service
 
-## 🔍 Verificar que Redis funciona
+## 🔍 Verify that Redis works
 
-Una vez instalado, puedes verificar que funciona:
+Once installed, you can verify it works:
 
 ```bash
-# Conectar con cliente de Redis
+# Connect with Redis client
 redis-cli
 
-# Dentro del cliente, ejecutar:
+# Inside the client, execute:
 ping
-# Debería responder: PONG
+# Should respond: PONG
 
-# Salir del cliente
+# Exit the client
 exit
 ```
 
-## 🚀 Ejecutar la aplicación
+## 🚀 Run the application
 
-Una vez que Redis esté ejecutándose:
+Once Redis is running:
 
 ```bash
 npm run dev
 ```
 
-Deberías ver:
+You should see:
 ```
-✅ Redis conectado exitosamente
-✅ Sistema de procesamiento bajo demanda configurado
+✅ Redis connected successfully
+✅ On-demand processing system configured
 ```
 
-## ❌ Si sigues teniendo problemas
+## ❌ If you're still having problems
 
-1. Verifica que Redis esté ejecutándose en el puerto 6379
-2. Revisa las variables de entorno en `.env`
-3. Asegúrate de que no haya firewall bloqueando el puerto
+1. Verify that Redis is running on port 6379
+2. Check the environment variables in `.env`
+3. Make sure there's no firewall blocking the port
 
-## 🔧 Configuración avanzada
+## 🔧 Advanced configuration
 
-Puedes personalizar la conexión a Redis con variables de entorno:
+You can customize the Redis connection with environment variables:
 
 ```bash
 REDIS_HOST=localhost
 REDIS_PORT=6379
-REDIS_PASSWORD=tu_password
+REDIS_PASSWORD=your_password
 ```
