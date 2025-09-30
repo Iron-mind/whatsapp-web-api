@@ -63,16 +63,27 @@ app.post('/whatsapp-web/message', async (req, res) => {
 
     // Verificar conexión a Redis
     const redisAvailable = await checkRedisConnection();
+    let messageData = {}
     if (!redisAvailable) {
-      return res.json({
-        message: 'Redis server not available. Please start Redis server first.',
-        success: false,
-        details: 'Run: docker run -d -p 6379:6379 --name redis redis:alpine'
-      });
+      const fullPhone = `${countryPrefix}${phone}@c.us`;
+
+      await whatsappClient.sendMessage(
+        fullPhone,
+        message
+      );
+      messageData = {
+        phone,
+        countryPrefix: countryPrefix || "57",
+        message,
+        sent: true,
+      }
+    } else {
+      // Agregar mensaje a la cola en lugar de enviarlo directamente
+      messageData = await addMessageToQueue(phone, countryPrefix, message);
+      processMessageQueue();
+
     }
 
-    // Agregar mensaje a la cola en lugar de enviarlo directamente
-    const messageData = await addMessageToQueue(phone, countryPrefix, message);
 
     res.json({
       message: 'Message queued successfully',
@@ -80,11 +91,10 @@ app.post('/whatsapp-web/message', async (req, res) => {
       messageId: messageData.id,
       queuedAt: messageData.created_at
     });
-    processMessageQueue();
 
   } catch (error) {
     console.log(error);
-    res.json({ message: 'Error: ' + error.message, success: false });
+    res.status(500).json({ message: 'Error: ' + error.message, success: false });
   }
 });
 

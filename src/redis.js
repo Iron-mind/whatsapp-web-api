@@ -230,6 +230,8 @@ export async function getMessagesReport() {
         total: parsedMessages.length,
         sent: sentCount,
         pending: pendingCount,
+        countryPrefix: parsedMessages[0] ? parsedMessages[0].countryPrefix : null,
+        phone: parsedMessages[0] ? parsedMessages[0].phone : null,
         lastMessage: parsedMessages[0] ? new Date(parsedMessages[0].created_at) : null
       };
     }
