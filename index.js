@@ -46,7 +46,7 @@ app.get('/whatsapp-web/qr', (req, res) => {
 app.post('/whatsapp-web/message', async (req, res) => {
   try {
     //phone sample: 573002222222 
-    console.log(req.body);
+    // console.log(req.body);
 
     let { phone, message, countryPrefix } = req.body;
     countryPrefix = countryPrefix || "57";
