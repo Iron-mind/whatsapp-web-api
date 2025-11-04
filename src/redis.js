@@ -5,7 +5,6 @@ const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
   password: process.env.REDIS_PASSWORD || null,
-  retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3,
   lazyConnect: true,
   maxRetriesOnFailover: 1,
@@ -142,40 +141,47 @@ export async function getNextMessage() {
 }
 
 // Function to mark a message as sent
-export async function markMessageAsSent(messageId, sentAt = null) {
+export async function markMessageAsSent(messageId, messageIndex, sentAt = null) {
   try {
-    // Obtener todos los mensajes de la cola
-    const messages = await redis.lrange(QUEUE_KEY, 0, -1);
-    
-    for (let i = 0; i < messages.length; i++) {
-      const messageData = JSON.parse(messages[i]);
-      
-      if (messageData.id === messageId) {
-        // Actualizar el mensaje
-        messageData.sent = true;
-        messageData.sent_at = sentAt || new Date().toISOString();
-        
-        // Reemplazar en la cola
-        await redis.lset(QUEUE_KEY, i, JSON.stringify(messageData));
-        
-        // También actualizar en la estructura de mensajes por número
-        const phoneKey = `${MESSAGES_KEY_PREFIX}${messageData.countryPrefix}${messageData.phone}`;
-        const phoneMessages = await redis.lrange(phoneKey, 0, -1);
-        
-        for (let j = 0; j < phoneMessages.length; j++) {
-          const phoneMessageData = JSON.parse(phoneMessages[j]);
-          if (phoneMessageData.id === messageId) {
-            await redis.lset(phoneKey, j, JSON.stringify(messageData));
-            break;
-          }
-        }
-        
-        console.log(`Message ${messageId} marked as sent`);
-        return true;
+    // obtain the message from the queue using the provided index
+    const messageJSON = await redis.lindex(QUEUE_KEY, messageIndex);
+    if (!messageJSON) {
+      console.error(`Error: Message with index ${messageIndex} not found in queue.`);
+      return false;
+    }
+
+    const messageData = JSON.parse(messageJSON);
+
+
+    //verify that the ID matches to avoid race conditions
+    if (messageData.id !== messageId) {
+      console.error(`Error: Mismatched ID at index ${messageIndex}. Expected ${messageId}, found ${messageData.id}.`);
+
+      return false;
+    }
+
+
+    messageData.sent = true;
+    messageData.sent_at = sentAt || new Date().toISOString();
+
+    // replace the message in the queue using the correct index
+    await redis.lset(QUEUE_KEY, messageIndex, JSON.stringify(messageData));
+
+    // Also update in the messages by number structure
+    const phoneKey = `${MESSAGES_KEY_PREFIX}${messageData.countryPrefix}${messageData.phone}`;
+    const phoneMessages = await redis.lrange(phoneKey, 0, -1);
+
+    for (let j = 0; j < phoneMessages.length; j++) {
+      const phoneMessageData = JSON.parse(phoneMessages[j]);
+      if (phoneMessageData.id === messageId) {
+        await redis.lset(phoneKey, j, JSON.stringify(messageData));
+        break;
       }
     }
-    
-    return false;
+
+    console.log(`Message ${messageId} marked as sent`);
+    return true;
+
   } catch (error) {
     console.error('Error marking message as sent:', error);
     throw error;

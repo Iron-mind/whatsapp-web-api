@@ -10,7 +10,7 @@ let isProcessing = false;
 
 // Function to process an individual message
 async function processMessage(messageData) {
-  const { phone, countryPrefix, message, id } = messageData;
+  const { phone, countryPrefix, message, id, index } = messageData;
   const fullPhone = `${countryPrefix}${phone}@c.us`;
   
   try {
@@ -26,7 +26,7 @@ async function processMessage(messageData) {
     await whatsappClient.sendMessage(fullPhone, message, { linkPreview: true });
     
     // Mark as sent
-    await markMessageAsSent(id);
+    await markMessageAsSent(id, index);
     
     // Clean up old messages if necessary
     await cleanupOldMessages(phone, countryPrefix);
