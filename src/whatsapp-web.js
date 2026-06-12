@@ -30,7 +30,7 @@ export const whatsappClient = new Client({
   }),
 });
 try {
-  console.log("Initializing whatsapp client");
+  console.log("Initializing WhatsApp client");
   whatsappClient.initialize()
 
 }
@@ -53,7 +53,7 @@ export function getQRHtmlString(res) {
 }
 
 whatsappClient.on("ready", () => {
-  console.log("Wp web Client is ready!");
+  console.log("WhatsApp Web Client is ready!");
   whatsappClient.sendMessage(
     whatsappClient.info.wid.user + "@c.us",
     "Whatsapp api connected through whatsapp-web.js "

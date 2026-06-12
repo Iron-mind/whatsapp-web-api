@@ -131,3 +131,6 @@ dist
 
 .wwebjs_auth
 .wwebjs_cache
+
+# npm 
+package-lock.json
