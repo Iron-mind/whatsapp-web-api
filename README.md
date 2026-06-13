@@ -1,5 +1,7 @@
 # WhatsApp Web API
 
+![WhatsApp API Server](src/whatsapp-api-server.png)
+
 A REST API for sending WhatsApp messages through WhatsApp Web using a queue system to avoid banning for mass sending.
 
 ## Features
