@@ -1,0 +1,50 @@
+services:
+  app:
+    build: .
+    container_name: whatsapp-web-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=6900
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+    ports:
+      - "6900:6900"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - whatsapp_auth:/app/.wwebjs_auth
+      - whatsapp_cache:/app/.wwebjs_cache
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:6900/test').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: whatsapp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    # Redis port is NOT exposed externally by default for security.
+    # Uncomment the lines below if you need external access:
+    # ports:
+    #   - "6379:6379"
+
+volumes:
+  whatsapp_auth:
+  whatsapp_cache:
+  redis_data:

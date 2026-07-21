@@ -37,7 +37,102 @@ A REST API for sending WhatsApp messages through WhatsApp Web using a queue syst
    ```bash
    pnpm dev
    ```
+## 🐳 Docker (Recommended)
 
+The easiest way to run the full stack (app + Redis) with a single command.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed
+
+### Quick Start
+
+```bash
+# 1. Clone and enter the project
+git clone <repo-url> && cd whatsapp-web-api
+
+# 2. Create your .env file (defaults work out of the box)
+cp .env.example .env
+
+# 3. Build and start all services
+docker compose up -d
+
+# 4. Check logs to confirm everything is running
+docker compose logs app --tail=50
+```
+
+### First-Time WhatsApp Authentication (QR Code)
+
+1. Open your browser at `http://localhost:6900/whatsapp-web/qr`
+2. Scan the QR code with your WhatsApp mobile app
+   - WhatsApp → Settings → Linked Devices → Link a Device
+3. Once scanned, the session is **persisted** in a Docker volume — you won't need to scan again after restarts
+
+### Useful Commands
+
+```bash
+# View app logs
+docker compose logs -f app
+
+# View Redis logs
+docker compose logs -f redis
+
+# Restart the app only
+docker compose restart app
+
+# Stop all services
+docker compose down
+
+# Stop and delete volumes (WARNING: loses WhatsApp session and Redis data)
+docker compose down -v
+
+# Rebuild the image after code changes
+docker compose up -d --build
+
+# Check service health
+docker compose ps
+```
+
+### Architecture (Docker)
+
+| Service | Container Name | Port | Volume |
+|---------|---------------|------|--------|
+| App | `whatsapp-web-api` | `6900` | `whatsapp_auth` (WhatsApp session), `whatsapp_cache` |
+| Redis | `whatsapp-redis` | `6379` (internal only) | `redis_data` (queue & message persistence) |
+
+- **Redis** runs on the internal Docker network — not exposed externally by default
+- **WhatsApp session** is stored in `whatsapp_auth` volume, surviving container restarts and rebuilds
+- **Healthchecks** ensure Redis is ready before the app starts, and the app reports its own health
+
+### Troubleshooting (Docker)
+
+**QR code not showing / blank page:**
+```bash
+docker compose restart app
+```
+Then revisit `http://localhost:6900/whatsapp-web/qr`.
+
+**WhatsApp session lost after rebuild:**
+Ensure the `whatsapp_auth` volume is not deleted. Use `docker compose down` (without `-v`).
+
+**Chromium errors in logs:**
+The image uses a Debian-based Chromium. If you see `aws` or sandbox errors, the `--no-sandbox` flag is already applied. Increase container memory if needed:
+```yaml
+# In docker-compose.yml under the app service:
+deploy:
+  resources:
+    limits:
+      memory: 1G
+```
+
+**Redis connection refused:**
+The app waits for Redis to be healthy before starting. If you see persistent errors:
+```bash
+docker compose down
+docker compose up -d
+```
+
+---
 ## API Endpoints
 
 ### WhatsApp Authentication
