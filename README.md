@@ -14,6 +14,7 @@ A REST API for sending WhatsApp messages through WhatsApp Web using a queue syst
 - ✅ Automatic cleanup of old messages (keeps 20 per number)
 - ✅ Endpoints to query message status
 - ✅ Error handling and retries
+- ✅ **MCP (Model Context Protocol) server** for integration with MCP clients (stdio and Streamable HTTP transports)
 
 ## Prerequisites
 
@@ -300,6 +301,77 @@ Forces manual processing of the queue and waits for it to finish.
 }
 ```
 
+## MCP Server Integration
+
+This project now exposes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server so AI assistants and compatible clients can interact with the WhatsApp API through tools instead of raw HTTP calls.
+
+### Available MCP tools
+
+| Tool | Description |
+|------|-------------|
+| `send_whatsapp_message` | Sends or enqueues a WhatsApp message to a phone number. |
+| `get_whatsapp_messages_report` | Returns a summary of messages grouped by phone number. |
+| `get_whatsapp_messages_by_phone` | Returns the message history for a specific phone number. |
+| `process_whatsapp_queue` | Forces immediate processing of the pending message queue. |
+| `get_whatsapp_queue_status` | Returns whether the queue processor is running. |
+| `get_whatsapp_status` | Returns whether the WhatsApp client is authenticated. |
+| `get_redis_status` | Returns the Redis connection status. |
+
+### MCP transports
+
+#### 1. Streamable HTTP — mounted inside the Express app
+
+The HTTP API already includes an MCP endpoint at:
+
+```
+POST /mcp
+GET  /mcp
+```
+
+It uses the official MCP Streamable HTTP transport and supports SSE streaming and direct JSON-RPC responses. When running the app with `pnpm dev` or `pnpm start`, MCP clients can connect to `http://localhost:6900/mcp`.
+
+#### 2. stdio — for desktop MCP clients
+
+Run the dedicated stdio entry point:
+
+```bash
+pnpm mcp:stdio
+```
+
+This uses `StdioServerTransport` and is suitable for clients such as Claude Desktop configured with a `command` type server. The stdio mode suppresses normal `console.log` output so it does not corrupt the JSON-RPC stream.
+
+### Example: Claude Desktop configuration (stdio)
+
+```json
+{
+  "mcpServers": {
+    "whatsapp-web-api": {
+      "command": "node",
+      "args": ["C:\\Users\\Usuario\\Desktop\\reps\\whatsapp-web-api\\mcp-stdio.js"]
+    }
+  }
+}
+```
+
+> Make sure the working directory contains the `.env` file with `PUPPETEER_EXECUTABLE_PATH` and `REDIS_HOST`.
+
+### Example: direct Streamable HTTP request
+
+```bash
+curl -X POST http://localhost:6900/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": { "name": "test", "version": "1.0" }
+    }
+  }'
+```
+
 ## Testing
 
 1. Run the application: `pnpm dev`
@@ -311,3 +383,9 @@ Forces manual processing of the queue and waits for it to finish.
      -d '{"phone":"3001234567","message":"Hello from the API","countryPrefix":"57"}'
    ```
 4. Check status: `http://localhost:6900/whatsapp-web/messages/report`
+5. (Optional) Test the MCP HTTP endpoint:
+   ```bash
+   curl -X POST http://localhost:6900/mcp \
+     -H "Content-Type: application/json" \
+     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+   ```

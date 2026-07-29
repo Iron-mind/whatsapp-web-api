@@ -5,15 +5,18 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "dotenv": "^17.4.2",
     "express": "4.21.1",
     "ioredis": "^5.8.0",
     "qr-image": "3.2.0",
-    "whatsapp-web.js": "^1.34.7"
+    "whatsapp-web.js": "^1.34.7",
+    "zod": "^4.4.3"
   },
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "mcp:stdio": "node mcp-stdio.js"
   },
   "type": "module",
   "devDependencies": {

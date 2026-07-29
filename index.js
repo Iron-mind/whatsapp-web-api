@@ -9,11 +9,15 @@ import {
   checkRedisConnection
 } from './src/redis.js';
 import { processMessageQueue, getProcessorStatus } from './src/queue-processor.js';
+import { mountMcpHttpRoute } from './src/mcp/http-route.js';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 6900;
+
+// Mount the MCP Streamable HTTP endpoint at /mcp
+mountMcpHttpRoute(app, '/mcp');
 
 // Configure Pug view engine
 app.set('view engine', 'pug');
