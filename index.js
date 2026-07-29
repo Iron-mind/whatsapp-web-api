@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import { getQRHtmlString, whatsappClient } from './src/whatsapp-web.js';
 import {

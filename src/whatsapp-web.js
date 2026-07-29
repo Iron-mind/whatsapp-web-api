@@ -22,7 +22,17 @@ const htmlTemplate = `<!DOCTYPE html>
 </html>`
 export const whatsappClient = new Client({
   puppeteer: {
-    args: ["--no-sandbox"],
+    headless: true,
+    protocolTimeout: 120000,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-web-security",
+      "--disable-features=IsolateOrigins,site-per-process",
+    ],
   },
 
   authStrategy: new LocalAuth({
