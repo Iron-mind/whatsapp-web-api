@@ -16,7 +16,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "mcp:stdio": "node mcp-stdio.js"
+    "mcp:stdio": "node mcp-stdio.js",
+    "test": "node --test"
   },
   "type": "module",
   "devDependencies": {

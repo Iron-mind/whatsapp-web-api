@@ -58,9 +58,14 @@ Desde el panel puedes crear cuentas, ver el estado de cada sesión y escanear el
 
 Las sesiones se guardan en `.wwebjs_auth/session-<accountId>`. Las cuentas y la cuenta activa se persisten en Redis y se restauran al arrancar.
 
+### Difusiones (en pausa)
+
+`src/campaigns.js` y `src/csv.js` guardan el experimento de difusiones masivas (CSV de contactos, lotes, intervalos fijos o aleatorios y persistencia en Redis) que se retomará más adelante. Está fuera de la interfaz y sus rutas no se montan en `index.js` porque WhatsApp restringe la cuenta al abrir unos 25 chats nuevos con el mismo mensaje; enviar en lote acelera ese bloqueo.
+
 ### Pruebas
 
 ```bash
+pnpm test
 pnpm --filter whatsapp-web-api-front build
 ```
 
