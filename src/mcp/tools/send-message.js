@@ -3,7 +3,7 @@ import {
   checkRedisConnection,
 } from '../../redis.js';
 import { processMessageQueue } from '../../queue-processor.js';
-import { whatsappClient } from '../../whatsapp-web.js';
+import { getActiveClient } from '../../account-manager.js';
 
 /**
  * Sends or enqueues a WhatsApp message.
@@ -23,7 +23,9 @@ export async function sendMessageTool(args) {
     };
   }
 
-  if (!whatsappClient.info) {
+  const activeClient = getActiveClient();
+
+  if (!activeClient.info) {
     return {
       content: [
         {
@@ -40,7 +42,7 @@ export async function sendMessageTool(args) {
 
     if (!redisAvailable) {
       const fullPhone = `${countryPrefix}${phone}@c.us`;
-      await whatsappClient.sendMessage(fullPhone, message);
+      await activeClient.sendMessage(fullPhone, message);
       return {
         content: [
           {

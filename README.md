@@ -15,6 +15,10 @@ A REST API for sending WhatsApp messages through WhatsApp Web using a queue syst
 - ✅ Endpoints to query message status
 - ✅ Error handling and retries
 - ✅ **MCP (Model Context Protocol) server** for integration with MCP clients (stdio and Streamable HTTP transports)
+- ✅ Frontend Vite en `front/` para vincular varios números y ver su estado
+- ✅ Varias cuentas persistentes con una sola cuenta emisora activa
+- ✅ QR por cuenta y estado en vivo de cada sesión
+- ✅ Persistencia Redis de cuentas y de la cuenta activa, restaurada al reiniciar
 
 ## Prerequisites
 
@@ -38,6 +42,29 @@ A REST API for sending WhatsApp messages through WhatsApp Web using a queue syst
    ```bash
    pnpm dev
    ```
+
+### Panel de números
+
+En otra terminal, desde la raíz del proyecto:
+
+```bash
+pnpm --dir front install
+pnpm --dir front dev
+```
+
+Abre `http://localhost:5173`. Vite redirige `/api` al backend en `http://localhost:6900`.
+
+Desde el panel puedes crear cuentas, ver el estado de cada sesión y escanear el QR de cualquier número para vincularlo. Solo la cuenta marcada como **ACTIVA** envía mensajes (cola, `POST /whatsapp-web/message` y herramientas MCP); al cambiar de número se conservan las credenciales del anterior para poder volver a usarlo.
+
+Las sesiones se guardan en `.wwebjs_auth/session-<accountId>`. Las cuentas y la cuenta activa se persisten en Redis y se restauran al arrancar.
+
+### Pruebas
+
+```bash
+pnpm --filter whatsapp-web-api-front build
+```
+
+La primera versión está pensada para uso local o red privada. La API no incluye autenticación de usuario; no expongas el puerto públicamente.
 ## 🐳 Docker (Recommended)
 
 The easiest way to run the full stack (app + Redis) with a single command.
@@ -144,6 +171,37 @@ Gets the QR code to authenticate with WhatsApp Web.
 **Successful response:**
 - HTML with QR code to scan
 - If already authenticated: text with associated number
+
+---
+
+### Accounts
+
+#### `GET /api/accounts`
+Devuelve la cuenta activa y la lista de cuentas con su estado, número vinculado y QR (si está pendiente de escaneo).
+
+```json
+{
+  "success": true,
+  "active": { "id": "default", "name": "Cuenta principal", "phone": "573001234567", "status": "ready", "active": true },
+  "accounts": []
+}
+```
+
+#### `POST /api/accounts`
+Crea una cuenta y arranca su sesión. El `id` solo admite letras, números y guiones.
+
+```json
+{ "id": "territorial-2", "name": "Territorial 2" }
+```
+
+#### `GET /api/accounts/:id`
+Devuelve una cuenta por id.
+
+#### `GET /api/accounts/:id/qr`
+Devuelve el SVG del QR pendiente y el estado de la sesión.
+
+#### `POST /api/accounts/:id/activate`
+Marca la cuenta como emisora activa. La sesión anterior se cierra y sus credenciales quedan en disco.
 
 ---
 

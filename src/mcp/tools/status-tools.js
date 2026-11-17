@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { checkRedisConnection } from '../../redis.js';
-import { whatsappClient } from '../../whatsapp-web.js';
+import { getActiveAccount } from '../../account-manager.js';
 
 const whatsappStatusConfig = {
   title: 'Get WhatsApp client status',
@@ -14,7 +14,8 @@ const redisStatusConfig = {
 };
 
 async function whatsappStatusHandler() {
-  const ready = Boolean(whatsappClient.info);
+  const account = getActiveAccount();
+  const ready = Boolean(account?.phone);
   return {
     content: [
       {
@@ -22,7 +23,9 @@ async function whatsappStatusHandler() {
         text: JSON.stringify(
           {
             ready,
-            phone: whatsappClient.info?.wid?.user || null,
+            account: account?.id || null,
+            status: account?.status || 'offline',
+            phone: account?.phone || null,
             info: ready ? 'WhatsApp client is authenticated and ready.' : 'WhatsApp client is not ready yet.',
           },
           null,
