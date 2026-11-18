@@ -1,4 +1,4 @@
-import { whatsappClient } from './whatsapp-web.js';
+import { getActiveClient } from './account-manager.js';
 import { 
   getNextMessage, 
   markMessageAsSent, 
@@ -17,6 +17,7 @@ async function processMessage(messageData) {
     console.log(`Sending message to ${countryPrefix}${phone}: ${message.substring(0, 50)}...`);
     
     // Check if the WhatsApp client is ready
+    const whatsappClient = getActiveClient();
     if (!whatsappClient.info) {
       console.error('WhatsApp client is not ready');
       return false;

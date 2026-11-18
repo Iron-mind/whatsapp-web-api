@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root { color: #17251f; background: #e9eee8; font-family: 'Space Grotesk', sans-serif; font-synthesis: none; }
+* { box-sizing: border-box; } body { margin: 0; } main { max-width: 1180px; margin: auto; padding: 38px 5vw 80px; }
+.topbar { display: flex; align-items: end; justify-content: space-between; margin-bottom: 34px; } h1, h2, p { margin: 0; } h1 { font-size: clamp(2.2rem, 5vw, 4.4rem); line-height: .9; letter-spacing: -.07em; font-weight: 600; } h2 { font-size: 1.35rem; letter-spacing: -.04em; }
+.kicker, .eyebrow, .label { font: 500 .68rem 'DM Mono', monospace; letter-spacing: .08em; color: #6f7f75; text-transform: uppercase; } .kicker { display: block; margin-bottom: 14px; color: #b0522f; }
+.connection { display: flex; align-items: center; gap: 9px; font: 500 .75rem 'DM Mono', monospace; } .connection i { background: #a4b3a8; border-radius: 50%; width: 9px; height: 9px; } .connection.online i { background: #3b9b62; } .connection small { color: #809087; }
+.grid { display: grid; gap: 18px; } .accounts { grid-template-columns: 1.55fr .8fr; align-items: start; }
+.panel { border: 1px solid #ccd8ce; background: rgba(247, 250, 245, .72); padding: 27px; } .panel-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px; } .eyebrow { display: block; margin-bottom: 9px; }
+.count { font: .72rem 'DM Mono', monospace; color: #b0522f; border: 1px solid #d7a996; padding: 6px 8px; }
+.account-list { display: grid; gap: 8px; } .account { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 11px; background: #edf3ed; border: 1px solid transparent; padding: 8px 10px; } .account:hover, .account.selected { border-color: #b0522f; background: #f8eee8; }
+.account-main { display: grid; grid-template-columns: 35px 1fr; gap: 11px; align-items: center; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; padding: 2px 0; cursor: pointer; }
+.account strong, .account small { display: block; } .account small, .hint, .empty { color: #75867a; font: .72rem 'DM Mono', monospace; margin-top: 4px; } .account em { font: .62rem 'DM Mono', monospace; color: #b0522f; font-style: normal; white-space: nowrap; }
+.avatar { display: grid; place-items: center; width: 35px; height: 35px; background: #d4e1d5; color: #346247; }
+.ghost { border: 1px solid #d7a996; background: transparent; color: #b0522f; padding: 8px 12px; font: 500 .72rem 'Space Grotesk'; cursor: pointer; white-space: nowrap; } .ghost:disabled, .dark:disabled { opacity: .55; cursor: progress; }
+.inline-form { display: grid; grid-template-columns: .7fr 1fr auto; gap: 8px; margin-top: 20px; }
+input { width: 100%; border: 1px solid #cbd7cd; border-radius: 0; background: #f8fbf7; padding: 12px; font: inherit; color: #17251f; outline: none; } input:focus { border-color: #b0522f; }
+.dark { border: 0; background: #20372d; color: white; padding: 12px 17px; cursor: pointer; font: 500 .78rem 'Space Grotesk'; } .dark.wide { width: 100%; margin-top: 18px; }
+.hint { line-height: 1.6; } .hint code { color: #536a58; }
+.status-panel { background: #20372d; color: #e8f0e7; display: flex; flex-direction: column; justify-content: center; min-height: 250px; } .status-panel .eyebrow, .status-panel p { color: #a9c1ad; } .status-panel p { line-height: 1.6; font-size: .88rem; margin-top: 10px; max-width: 300px; } .status-panel .dark { background: #b0522f; align-self: flex-start; max-width: 300px; }
+.status-ring { display: grid; place-items: center; border: 1px solid #789580; width: 75px; height: 75px; border-radius: 50%; margin: 17px 0 20px; color: #e4b19b; font: 1rem 'DM Mono'; } .status-ring.ready { border-color: #3b9b62; color: #8fd0a8; }
+.status-error { color: #e4b19b !important; font: .75rem 'DM Mono', monospace; }
+.qr { width: 190px; height: 190px; margin: 17px 0 20px; padding: 8px; background: white; } .qr svg { width: 100%; height: 100%; }
+.alert { padding: 12px 15px; background: #d8ead9; margin-bottom: 18px; font: .75rem 'DM Mono'; } .alert.error { background: #f5d7cd; color: #883b24; }
+@media (max-width: 780px) { main { padding: 25px 18px 55px; } .topbar, .accounts { display: block; } .connection { margin-top: 24px; } .panel { margin-bottom: 18px; padding: 20px; } .inline-form { grid-template-columns: 1fr; } }

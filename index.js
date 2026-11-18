@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import { getQRHtmlString, whatsappClient } from './src/whatsapp-web.js';
+import { qrHtml } from './src/whatsapp-web.js';
 import {
   addMessageToQueue,
   getMessagesReport,
@@ -10,11 +10,23 @@ import {
 } from './src/redis.js';
 import { processMessageQueue, getProcessorStatus } from './src/queue-processor.js';
 import { mountMcpHttpRoute } from './src/mcp/http-route.js';
+import { createAccount, getAccount, getAccountQr, getActiveAccount, getActiveClient, initializeAccounts, listAccounts, switchAccount } from './src/account-manager.js';
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '12mb' }));
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 6900;
+
+async function restorePersistentState() {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    if (await checkRedisConnection()) {
+      await initializeAccounts();
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  return false;
+}
 
 // Mount the MCP Streamable HTTP endpoint at /mcp
 mountMcpHttpRoute(app, '/mcp');
@@ -31,17 +43,15 @@ app.get('/test', (req, res) => {
 
 app.get('/whatsapp-web/qr', (req, res) => {
   try {
+    const account = getActiveAccount();
 
-    let phoneNumber = whatsappClient.info?.wid.user
-
-    if (phoneNumber) {
-
-      return res.send(
-        "Phone number already associated " +
-        phoneNumber
-      );
+    if (account?.phone) {
+      return res.send('Phone number already associated ' + account.phone);
     }
-    getQRHtmlString(res);
+    if (account?.qr) {
+      return res.send(qrHtml(account.qr));
+    }
+    res.status(202).send('QR is being generated. Refresh this page in a few seconds.');
   } catch (err) {
     console.log(err);
     res.json({ message: 'Error', success: false });
@@ -57,7 +67,8 @@ app.post('/whatsapp-web/message', async (req, res) => {
     countryPrefix = countryPrefix || "57";
 
     // Validar que el cliente esté listo
-    if (!whatsappClient.info) {
+    const activeClient = getActiveClient();
+    if (!activeClient.info) {
       return res.json({ message: 'WhatsApp client not ready', success: false });
     }
 
@@ -72,7 +83,7 @@ app.post('/whatsapp-web/message', async (req, res) => {
     if (!redisAvailable) {
       const fullPhone = `${countryPrefix}${phone}@c.us`;
 
-      await whatsappClient.sendMessage(
+      await activeClient.sendMessage(
         fullPhone,
         message
       );
@@ -189,14 +200,35 @@ app.post('/whatsapp-web/queue/process', async (req, res) => {
     res.json({ message: 'Error starting queue processing: ' + error, success: false });
   }
 });
+app.get('/api/accounts', (req, res) => res.json({ success: true, active: getActiveAccount(), accounts: listAccounts() }));
+app.get('/api/accounts/:id', (req, res) => {
+  const account = getAccount(req.params.id);
+  if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
+  res.json({ success: true, account });
+});
+app.get('/api/accounts/:id/qr', (req, res) => {
+  const account = getAccount(req.params.id);
+  if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
+  res.json({ success: true, qr: getAccountQr(req.params.id), status: account.status });
+});
+app.post('/api/accounts', async (req, res) => {
+  try { res.status(201).json({ success: true, account: await createAccount(req.body) }); }
+  catch (error) { res.status(400).json({ success: false, message: error.message }); }
+});
+app.post('/api/accounts/:id/activate', async (req, res) => {
+  try { res.json({ success: true, account: await switchAccount(req.params.id) }); }
+  catch (error) { res.status(400).json({ success: false, message: error.message }); }
+});
+
 app.listen(port, async () => {
   console.log(`🚀 Server listening on port ${port}`);
 
   // Verificar conexión a Redis
   console.log('🔍 Checking Redis connection...');
   const redisAvailable = await checkRedisConnection();
+  const persistentStateReady = await restorePersistentState();
 
-  if (redisAvailable) {
+  if (redisAvailable && persistentStateReady) {
     console.log('✅ Redis connected successfully');
     // Configurar la función de procesamiento en el módulo de redis
     setProcessQueueFunction(processMessageQueue);

@@ -1,2 +1,5 @@
+packages:
+  - 'front'
+
 allowBuilds:
   puppeteer: true
